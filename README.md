@@ -57,6 +57,7 @@ Follow the tutorial.
 Add multiple tasks (e.g. First message, Second message, etc.)
 How are tasks distributed? 
 - When the consumer completes one task, it takes the next one.
+
 Monitor the windows with at least two workers. 
 Which worker gets which tasks?
 - The worker takes the next task in the queue once it has completed its current task. If one consumer is taking a long time on one task, another consumer may complete multiple short tasks from the queue in a row.
