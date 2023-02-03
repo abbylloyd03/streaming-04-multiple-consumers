@@ -1,23 +1,34 @@
 """
-    This program sends a message to a queue on the RabbitMQ server.
-    Make tasks harder/longer-running by adding dots at the end of the message.
+    This program reads in a csv file and sends each row as 
+    a message to a queue on the RabbitMQ server.
+    Tasks are made harder/longer-running by adding dots at the end of the csv row.
 
-    Author: Denise Case
-    Date: January 15, 2023
+    Author: Abby Lloyd / Denise Case
+    Date: Feb 3, 2023
 
 """
 
 import pika
 import sys
 import webbrowser
+import csv
+
 
 def offer_rabbitmq_admin_site():
-    """Offer to open the RabbitMQ Admin website"""
-    ans = input("Would you like to monitor RabbitMQ queues? y or n ")
-    print()
-    if ans.lower() == "y":
-        webbrowser.open_new("http://localhost:15672/#/queues")
+    """
+    If show_offer is True, offer to open the RabbitMQ Admin website. 
+    Otherwise, open automatically.
+    """
+
+    show_offer = False
+    if show_offer == True:
+        ans = input("Would you like to monitor RabbitMQ queues? y or n ")
         print()
+        if ans.lower() == "y":
+            webbrowser.open_new("http://localhost:15672/#/queues")
+            print()
+    else:
+        webbrowser.open_new("http://localhost:15672/#/queues")
 
 def send_message(host: str, queue_name: str, message: str):
     """
@@ -29,6 +40,7 @@ def send_message(host: str, queue_name: str, message: str):
         queue_name (str): the name of the queue
         message (str): the message to be sent to the queue
     """
+
 
     try:
         # create a blocking connection to the RabbitMQ server
@@ -59,10 +71,19 @@ def send_message(host: str, queue_name: str, message: str):
 if __name__ == "__main__":  
     # ask the user if they'd like to open the RabbitMQ Admin site
     offer_rabbitmq_admin_site()
-    # get the message from the command line
-    # if no arguments are provided, use the default message
-    # use the join method to convert the list of arguments into a string
-    # join by the space character inside the quotes
-    message = " ".join(sys.argv[1:]) or "First task....."
-    # send the message to the queue
-    send_message("localhost","task_queue2",message)
+    # Declare a variable to hold the input file name
+    input_file_name = "/Users/Abby/Documents/44-671 Streaming Data/Module 4/streaming-04-multiple-consumers/tasks.csv"
+    # Create a file object for input (r = read access)
+    input_file = open(input_file_name, "r")
+    # Create a csv reader for a comma delimited file
+    reader = csv.reader(input_file, delimiter=",")
+    # Then, for each data row in the reader
+    for row in reader:
+    
+        # get the message from reader
+        # if no arguments are provided, use the default message
+        # use the join method to convert the list of arguments into a string
+        # join by the space character inside the quotes
+        message = " ".join(sys.argv[1:]) or str(row)
+        # send the message to the queue
+        send_message("localhost","task_queue2",message)
